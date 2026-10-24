@@ -9,6 +9,15 @@ const PORT = process.env.PORT || 10000;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
+// Endpoint សម្រាប់ឱ្យ Frontend ឆែកមើលថា Server មាន yt-dlp ឬยัง
+app.get('/check', (req, res) => {
+    res.json({ installed: true, message: 'yt-dlp-exec is ready' });
+});
+
+app.get('/status', (req, res) => {
+    res.json({ status: 'ok', ytdlp: true });
+});
+
 // Endpoint សម្រាប់ Convert វីដេអូ
 app.get('/convert', async (req, res) => {
     const videoUrl = req.query.url;
