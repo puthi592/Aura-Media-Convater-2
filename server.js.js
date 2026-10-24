@@ -1,11 +1,35 @@
 const express = require('express');
-const app = express();
-const PORT = 3000;
+const youtubedl = require('yt-dlp-exec');
+const path = require('path');
 
-app.get('/', (req, res) => {
-    res.send('YouTube to MP3 Server is running successfully!');
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+// បើកឱ្យដំណើរការ Frontend ពី Folder public
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+
+// Endpoint សម្រាប់ Convert វីដេអូ
+app.get('/convert', async (req, res) => {
+    const videoUrl = req.query.url;
+    if (!videoUrl) {
+        return res.status(400).json({ error: 'Please provide a URL' });
+    }
+
+    try {
+        const output = await youtubedl(videoUrl, {
+            dumpSingleJson: true,
+            noCheckCertificates: true,
+            noWarnings: true,
+            preferFreeFormats: true,
+        });
+        res.json({ success: true, data: output });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to process media' });
+    }
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
